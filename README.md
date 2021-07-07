@@ -63,3 +63,108 @@ There are two different approaches that are widely used for text summarization:
 * Abstractive Summarization: The model produces a completely different text that is shorter than the original, it generates new sentences in a new form, just like humans do. In this project, we will use transformers for this approach.
 
 In this milestone, we will use HuggingFace's transformers library in Python to perform abstractive text summarization on the transcript obtained from previous milestone.
+# Requirements
+In app.py,
+
+* Create a function which will accept YouTube transcript as an input parameter and return summarized transcript as output.
+* Instantiate a tokenizer and a model from the checkpoint name. Summarization is usually done using an encoder-decoder model, such as Bart or T5.
+* Define the transcript that should be summarized.
+* Add the T5 specific prefix “summarize: “.
+* Use the PreTrainedModel.generate() method to generate the summary.
+# Create REST API endpoint
+The next step is to define the resources that will be exposed by this backend service. This is an extremely simple application, we only have a single endpoint, so our only resource will be the summarized text.
+
+# Requirements
+In app.py,
+
+* Create a Flask API Route with GET HTTP Request method with a URI http://[hostname]/api/summarize?youtube_url=<url>.
+* Extract the YouTube video id from the YouTube URL which is obtained from the query params.
+* Generate the summarized transcript by executing the transcript generation function following the execution of transcript summarizer function.
+* Return the summarized transcript with HTTP Status OK and handle HTTP exceptions if applicable.
+* Run the Flask Application and test the endpoint in Postman to verify the appropriate results.
+
+# Getting Started with Chrome Extension
+Extensions are small software programs that customize the browsing experience. They enable users to tailor Chrome functionality and behavior to individual preferences. They are built on web technologies such as HTML, CSS and JavaScript. In this milestone, we are going to see how to create a recommended Chrome extension application directory and structure it to work with the required files.
+
+# Requirements
+* Create a chrome extension application directory containing essential files required as mentioned below.
+  * images
+  * background.js
+  * contentScript.js
+  * manifest.json
+  * popus.css
+  * popup.html
+  * popup.js
+ 
+
+* Paste the following code snippet in the manifest.json.
+{ 
+    "manifest_version": 2,
+    "name": "YSummarize",
+    "description": "An extension to provide summarized transcript of a YouTube Subtitle eligible     Video.",
+    "version": "1.0",
+    "permissions": ["activeTab"],
+
+
+}
+
+* And guess what? We already have enough to load our extension in the browser:
+  * Just go to chrome://extensions and turn on developer mode from the top right-hand corner.
+  * Then click on Load unpacked and select the folder containing the manifest file that we just created.
+  * There you have it, our extension is up and running.
+ 
+# Build a User Interface for Extension Popup
+We need a user interface so that the user can interact with the popups which are one of several types of user interface that a Chrome extension can provide. They usually appear upon clicking the extension icon in the browser toolbar.
+
+# Requirements
+* Add the line below to page_action in the manifest file which enable the User Interface for a Popup.
+{
+ .
+ .
+ .
+ "page_action": {
+        "default_popup": "popup.html",
+ }
+ .
+ .
+}
+
+* In the popup.html file,
+   * Include the popup.css file to make the styles available to the HTML elements.
+   * Include the popup.js file to enable user interaction and behavior with the HTML elements.
+   * Add a button element named Summarize which when clicked will emit a click event which will be detected by an event listener to respond to it.
+   * Add a div element where summarized text will be displayed when received from backend REST API Call.
+* In popup.css file,
+   * Provide appropriate CSS styling to the HTML elements 'button' and 'div' to have a better user experience.
+ 
+ # Display Summarized transcript
+We have provided a basic UI to enable users to interact and display the summarized text but there are some missing links which must be addressed. In this milestone, we will add a functionality to allow the extension to interact with the backend server using HTTP REST API Calls.
+
+# Requirements
+* In popup.js,
+
+   * When DOM is ready, attach event listener with event type as "click" to the Summarize button and pass second parameter as an anonymous callback function.
+   * In anonymous function, send an action message generate using chrome.runtime.sendMessage method to notify contentScript.js to execute summary generation.
+   * Add event listener chrome.runtime.onMessage to listen message result from contentScript.js which will execute the outputSummary callback function.
+   * In callback function, display the summary in the div element programmatically using Javascript.
+* Add the line below to content_scripts in the manifest file which will inject the content script contentScript.js declaratively and execute the script automatically on a particular page.
+
+{
+ .
+ .
+ .
+ "content_scripts":[
+    {
+      "matches":["https://www.youtube.com/watch?v=*"],
+      "js": ["contentScript.js"]
+    }
+ ],
+ .
+ .
+ .
+
+}
+* In contentScript.js,
+   * Add event listener chrome.runtime.onMessage to listen message generate which will execute the generateSummary callback function.
+   * In call back function, extract the URL of the current tab and make a GET HTTP request using XMLHTTPRequest Web API to the backend to receive summarized text as a response.
+   * Send an action message result with summary payload using chrome.runtime.sendMessage to notify popup.js to display the summarized text.
