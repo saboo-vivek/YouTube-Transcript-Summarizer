@@ -1,4 +1,4 @@
-# YouTube-Transcript-Summarizer
+# YouTube-Transcript-Summarizer (--------PENDING----------)
 Generate a summary of a youtube video transcript
 
 # Objective
